@@ -135,9 +135,11 @@ def get_file_content_from_pr(pr_url=""):
 
 def parse_yml_file(fileContent=None):
     global allowed_inputs
+    print("Inside parse_yml_file")
     if(fileContent ==  None):
         return False
     filedata = yaml.safe_load(fileContent)
+    print("loaded yml from the string")
     title = ""
     description = ""
     comments = ""
@@ -152,10 +154,10 @@ def parse_yml_file(fileContent=None):
         recepient_type = filedata("recepient_type")
     if("issue_id_list" in filedata):
         issue_id_list = filedata("issue_id_list")
-    
+    print("title:", title,"description:", description, "comments:", comments, "rec_type", recepient_type)
     if(recepient_type in allowed_inputs):
         load_yaml()
-    
+    print("loaded main yml file")
     if(recepient_type == None):
         #Close all issues
         pass
@@ -196,4 +198,5 @@ Execution Steps:
 '''
 file_content = get_file_content_from_pr(pr_url=pr_url)
 #print("File Content : ", file_content)
+print("Calling the parse_yml_file function")
 parse_yml_file(fileContent=file_content)
