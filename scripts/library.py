@@ -131,6 +131,7 @@ def get_file_content_from_pr(pr_url=""):
             print("Global Variable Set: ", gFilename)
             file_content = requests.get(raw_url, headers=headers).text
             print("File Content : ", file_content)
+            break
         return [file_content,filename]
     except Exception as e:
         print("error : " + str(e))
