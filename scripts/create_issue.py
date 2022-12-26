@@ -58,6 +58,7 @@ def create_an_issue(title, description="Description", repo=""):
             return False
         elif(status == SUCCESS):
             issueUrl = message
+            issueUrl = "https://github.com/" + str(issueUrl.split("repos/")[1])
             return [True, issueUrl]
         # Should handle else?
     except Exception as e:
