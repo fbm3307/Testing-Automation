@@ -133,18 +133,18 @@ def get_file_content_from_pr(pr_url=""):
         print("error : " + str(e))
         return False
 
-def parse_yml_file(pr_body=None):
+def parse_yml_file(fileContent=None):
     global allowed_inputs
-    if(pr_body ==  None):
+    if(fileContent ==  None):
         return False
-    filedata = yaml.safe_load(pr_body)
+    filedata = yaml.safe_load(fileContent)
     title = ""
     description = ""
     comments = ""
     recepient_type = ""
     if("title" in recepient_type):
         title = filedata["title"]
-    if("decriptio" in filedata):
+    if("decription" in filedata):
         description = filedata["description"]
     if("comments" in filedata):
         comments = filedata["comments"]
@@ -173,8 +173,11 @@ def parse_yml_file(pr_body=None):
         pass
     elif(recepient_type == "testtemplates"):
         #Create issues in test templates
+        print("[+] Inside testtemplates")
         output = target_repos(user_input=recepient_type, issueTitle=title, issueDescription=description)
         #output format : List([repo_name, issue_id_url])
+        print("[+] Executed in testtemplates")
+        print(output)
         
         pass
     elif(recepient_type == "testall"):
@@ -192,4 +195,5 @@ Execution Steps:
 3. Once parsed, call the appropriate functions and execute the steps.
 '''
 file_content = get_file_content_from_pr(pr_url=pr_url)
-print("File Content : ", file_content)
+#print("File Content : ", file_content)
+parse_yml_file(fileContent=file_content)
