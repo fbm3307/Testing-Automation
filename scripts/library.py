@@ -118,13 +118,14 @@ def get_file_content_from_pr(pr_url=""):
         headers = {'Accept': 'application/vnd.github.v3+json'}
         pr_files = requests.get(pr_file_url, headers=headers)
         files = pr_files.json()
-        file_path = files["filename"]
-        file_path += "?raw=true"
-        print("pr_file_url", pr_file_url)
-        print("pr_files:", pr_files)
-        print("file_path : ", file_path)
-        file_content = requests.get(file_path, headers=headers)
-        print("File Content : ", file_content)
+        for file in files:
+            file_path = files["filename"]
+            file_path += "?raw=true"
+            print("pr_file_url", pr_file_url)
+            print("pr_files:", pr_files)
+            print("file_path : ", file_path)
+            file_content = requests.get(file_path, headers=headers)
+            print("File Content : ", file_content)
         return file_content
     except Exception as e:
         print("error : " + str(e))
