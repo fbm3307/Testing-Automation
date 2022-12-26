@@ -120,15 +120,13 @@ def get_file_content_from_pr(pr_url=""):
         headers = {'Accept': 'application/vnd.github.v3+json'}
         pr_files = requests.get(pr_file_url, headers=headers)
         files = pr_files.json()
-        print("pr_files:", pr_files)
-        print("files:", files)
         for file in files:
             filename = file["filename"]
             validFile = filename.startswith("message/") and filename.endswith(".yml")
             if(not validFile):
                 continue
             raw_url = file['raw_url']
-            file_content = requests.get(raw_url, headers=headers)
+            file_content = requests.get(raw_url, headers=headers).text
             print("File Content : ", file_content)
         return file_content
     except Exception as e:
