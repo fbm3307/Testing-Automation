@@ -9,6 +9,7 @@ import yaml
 import requests
 import argparse
 from create_issue import *
+from update_issue import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--pr_url", help="Name of the yaml file which triggered this action")
@@ -16,7 +17,7 @@ args = parser.parse_args()
 
 pr_url = args.pr_url
 print("Received Data: ", pr_url)
-VALID_FILE_PATTERN = "*/message/*.yml"
+gFilename = "" # This will be used whie updating the issue.
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -106,7 +107,7 @@ def target_repos(user_input="", issueTitle="", issueDescription=""):
             if(result == False):
                 print("Error while creating the issue in :", repo)
             else:
-                repo_url = repoList
+                repo_url = repoList[0]
                 issue_url = result[1]
                 output.append([repo_url, issue_url])
                 print("Issue created successfully :", result[1])
@@ -115,7 +116,7 @@ def target_repos(user_input="", issueTitle="", issueDescription=""):
 
 def get_file_content_from_pr(pr_url=""):
     try:
-        global VALID_FILE_PATTERN
+        global gFileName
         pr_file_url = pr_url + "/files"
         headers = {'Accept': 'application/vnd.github.v3+json'}
         pr_files = requests.get(pr_file_url, headers=headers)
@@ -126,6 +127,7 @@ def get_file_content_from_pr(pr_url=""):
             if(not validFile):
                 continue
             raw_url = file['raw_url']
+            gFilename = filename
             file_content = requests.get(raw_url, headers=headers).text
             print("File Content : ", file_content)
         return file_content
@@ -179,7 +181,7 @@ def parse_yml_file(fileContent=None):
         output = target_repos(user_input=recepient_type, issueTitle=title, issueDescription=description)
         #output format : List([repo_name, issue_id_url])
         print("[+] Executed in testtemplates")
-        print(output)
+        return output
         
         pass
     elif(recepient_type == "testall"):
@@ -199,4 +201,19 @@ Execution Steps:
 file_content = get_file_content_from_pr(pr_url=pr_url)
 #print("File Content : ", file_content)
 print("Calling the parse_yml_file function")
-parse_yml_file(fileContent=file_content)
+outputs = parse_yml_file(fileContent=file_content) #Format List([repo-url, issue-list])
+final_file_content = file_content
+final_file_content += "issue_id_list:\n"
+for output in outputs:
+    repo_url, issue_list = output[0],output[1]
+    final_file_content += """
+     - f{repo_url} : f{issue_list}
+    """
+file_url = str(pr_url.split("/pulls")[0]) + "/contents/" + gFilename
+print("File URL : ", file_url)
+#final_file_content_yml = yaml.safe_load(final_file_content)
+is_updated = update_file(filename=file_url, content=final_file_content)
+if(is_updated):
+    print("Updated Successfully!!")
+else:
+    print("Error while updating")
