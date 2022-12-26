@@ -190,29 +190,33 @@ def parse_yml_file(fileContent=None):
         #Throw error
         pass
 
+def main():
+    '''
+    Execution Steps:
+    1. Load the yaml file to fetch all the repo - load_yml()
+    2. Parse PR body. Check with necessary conditions.
+    3. Once parsed, call the appropriate functions and execute the steps.
+    '''
+    file_content = get_file_content_from_pr(pr_url=pr_url)
+    #print("File Content : ", file_content)
+    print("Calling the parse_yml_file function")
+    outputs = parse_yml_file(fileContent=file_content) #Format List([repo-url, issue-list])
+    final_file_content = file_content
+    final_file_content += "issue_id_list:\n"
+    for output in outputs:
+        repo_url, issue_list = output[0],output[1]
+        final_file_content += """
+        - f{repo_url} : f{issue_list}
+        """
+    global gFilename
+    file_url = str(pr_url.split("/pulls")[0]) + "/contents/" + gFilename
+    print("File URL : ", file_url)
+    #final_file_content_yml = yaml.safe_load(final_file_content)
+    is_updated = update_file(filename=file_url, content=final_file_content)
+    if(is_updated):
+        print("Updated Successfully!!")
+    else:
+        print("Error while updating")
+
 # File execution strats from here
-'''
-Execution Steps:
-1. Load the yaml file to fetch all the repo - load_yml()
-2. Parse PR body. Check with necessary conditions.
-3. Once parsed, call the appropriate functions and execute the steps.
-'''
-file_content = get_file_content_from_pr(pr_url=pr_url)
-#print("File Content : ", file_content)
-print("Calling the parse_yml_file function")
-outputs = parse_yml_file(fileContent=file_content) #Format List([repo-url, issue-list])
-final_file_content = file_content
-final_file_content += "issue_id_list:\n"
-for output in outputs:
-    repo_url, issue_list = output[0],output[1]
-    final_file_content += """
-     - f{repo_url} : f{issue_list}
-    """
-file_url = str(pr_url.split("/pulls")[0]) + "/contents/" + gFilename
-print("File URL : ", file_url)
-#final_file_content_yml = yaml.safe_load(final_file_content)
-is_updated = update_file(filename=file_url, content=final_file_content)
-if(is_updated):
-    print("Updated Successfully!!")
-else:
-    print("Error while updating")
+main()
