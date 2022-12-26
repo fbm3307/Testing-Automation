@@ -119,7 +119,7 @@ def get_file_content_from_pr(pr_url=""):
         pr_files = requests.get(pr_file_url, headers=headers)
         files = pr_files.json()
         for file in files:
-            file_path = files["filename"]
+            file_path = file["filename"]
             file_path += "?raw=true"
             print("pr_file_url", pr_file_url)
             print("pr_files:", pr_files)
