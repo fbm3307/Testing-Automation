@@ -128,10 +128,10 @@ def get_file_content_from_pr(pr_url=""):
                 continue
             raw_url = file['raw_url']
             gFilename = filename
-            print("Global Variable  Set: ", gFilename)
+            print("Global Variable Set: ", gFilename)
             file_content = requests.get(raw_url, headers=headers).text
             print("File Content : ", file_content)
-        return file_content
+        return [file_content,filename]
     except Exception as e:
         print("error : " + str(e))
         return False
@@ -197,7 +197,12 @@ def main():
     2. Parse PR body. Check with necessary conditions.
     3. Once parsed, call the appropriate functions and execute the steps.
     '''
-    file_content = get_file_content_from_pr(pr_url=pr_url)
+    temp = get_file_content_from_pr(pr_url=pr_url)
+    if(temp == False):
+        print("Error while fetching content from the PR")
+        sys.exit()
+    file_content = temp[0]
+    yml_file = temp[1]
     #print("File Content : ", file_content)
     print("Calling the parse_yml_file function")
     outputs = parse_yml_file(fileContent=file_content) #Format List([repo-url, issue-list])
@@ -209,7 +214,7 @@ def main():
         - f{repo_url} : f{issue_list}
         """
     global gFilename
-    file_url = str(pr_url.split("/pulls")[0]) + "/contents/" + gFilename
+    file_url = str(pr_url.split("/pulls")[0]) + "/contents/" + yml_file
     print("File URL : ", file_url)
     #final_file_content_yml = yaml.safe_load(final_file_content)
     is_updated = update_file(filename=file_url, content=final_file_content)
