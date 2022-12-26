@@ -62,4 +62,3 @@ def update_file(filename="", content="", message="appending issue ids"):
         print("Error while creating the issue " + str(e))
         return False
 
-
