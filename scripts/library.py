@@ -16,6 +16,7 @@ args = parser.parse_args()
 
 pr_url = args.pr_url
 print("Received Data: ", pr_url)
+VALID_FILE_PATTERN = "*/message/*.yml"
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -114,6 +115,7 @@ def target_repos(user_input="", issueTitle="", issueDescription=""):
 
 def get_file_content_from_pr(pr_url=""):
     try:
+        global VALID_FILE_PATTERN
         pr_file_url = pr_url + "/files"
         headers = {'Accept': 'application/vnd.github.v3+json'}
         pr_files = requests.get(pr_file_url, headers=headers)
@@ -121,12 +123,12 @@ def get_file_content_from_pr(pr_url=""):
         print("pr_files:", pr_files)
         print("files:", files)
         for file in files:
-            file_path = file["filename"]
-            file_path += "?raw=true"
-            print("pr_file_url", pr_file_url)
-            print("pr_files:", pr_files)
-            print("file_path : ", file_path)
-            file_content = requests.get(file_path, headers=headers)
+            filename = file["filename"]
+            validFile = filename.startswith("message/") and filename.endswith(".yml")
+            if(not validFile):
+                continue
+            raw_url = file['raw_url']
+            file_content = requests.get(raw_url, headers=headers)
             print("File Content : ", file_content)
         return file_content
     except Exception as e:
