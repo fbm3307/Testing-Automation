@@ -128,6 +128,7 @@ def get_file_content_from_pr(pr_url=""):
                 continue
             raw_url = file['raw_url']
             gFilename = filename
+            print("Global Variable  Set: ", gFilename)
             file_content = requests.get(raw_url, headers=headers).text
             print("File Content : ", file_content)
         return file_content
@@ -182,8 +183,6 @@ def parse_yml_file(fileContent=None):
         #output format : List([repo_name, issue_id_url])
         print("[+] Executed in testtemplates")
         return output
-        
-        pass
     elif(recepient_type == "testall"):
         #Create issues in all test repos - image_stream and templates
         pass
