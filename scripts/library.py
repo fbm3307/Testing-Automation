@@ -116,7 +116,7 @@ def get_file_content_from_pr(pr_url=""):
     try:
         pr_file_url = pr_url + "/files"
         headers = {'Accept': 'application/vnd.github.v3+json'}
-        pr_files = requests.get(pr_file_url, headers=headers)
+        pr_files = requests.get(pr_file_url, headers=headers).text
         files = pr_files.json()
         for file in files:
             file_path = file["filename"]
