@@ -4,20 +4,18 @@ from re import template
 import re
 import sys
 from typing import final
+from wsgiref import headers
 import yaml
 import requests
 import argparse
 from create_issue import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--pr_body", help="Stores the body of the PR File")
-parser.add_argument("--file_name", help="Name of the yaml file which triggered this action")
+parser.add_argument("--pr_url", help="Name of the yaml file which triggered this action")
 args = parser.parse_args()
 
-pr_body = args.pr_body
-file_name = args.file_name
-print("File which triggered this :", file_name)
-print("Received Data: ", pr_body)
+pr_url = args.pr_url
+print("Received Data: ", pr_url)
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -69,14 +67,12 @@ def load_yaml():
             templateDict[reponame] = list(templateLocationSet)
         imagestreamLocationSet.update(templateLocationSet)
         combinedDict[reponame] = list(imagestreamLocationSet)
-print("completed the division of the  repos into imagestreams and templates")
+    print("completed the division of the  repos into imagestreams and templates")
 
 
 def target_repos(user_input="", issueTitle="", issueDescription=""):
     if(user_input == ""):
         return False
-    if(user_input == "all" or user_input == "templates" or user_input == "imagestreams"):
-        load_yaml()
     output = [] # output = {repo_url:issue_id_url}
     targetDict = {}
     if(user_input == "all"):
@@ -116,8 +112,21 @@ def target_repos(user_input="", issueTitle="", issueDescription=""):
     
     return output
 
+def get_file_content_from_pr(pr_url=""):
+    try:
+        pr_file_url = pr_url + "/files"
+        headers = {'Accept': 'application/vnd.github.v3+json'}
+        pr_files = requests.get(pr_file_url, headers=headers)
+        files = pr_files.json()
+        file_path = files["filename"]
+        file_path += "?raw=true"
+        file_content = requests.get(file_path, headers=headers)
+        return file_content
+    except Exception as e:
+        print("error : " + str(e))
+        return False
 
-def parse_pr_body(pr_body=None):
+def parse_yml_file(pr_body=None):
     global allowed_inputs
     if(pr_body ==  None):
         return False
@@ -148,8 +157,6 @@ def parse_pr_body(pr_body=None):
         pass
     elif(recepient_type == "templates"):
         #Create issues in all the repo present under templates
-        output = target_repos(user_input=recepient_type, issueTitle=title, issueDescription=description)
-        #output format : List([repo_name, issue_id_url])
         pass
     elif(recepient_type == "image_stream"):
         #Create issues in all the image_steram repo
@@ -159,6 +166,9 @@ def parse_pr_body(pr_body=None):
         pass
     elif(recepient_type == "testtemplates"):
         #Create issues in test templates
+        output = target_repos(user_input=recepient_type, issueTitle=title, issueDescription=description)
+        #output format : List([repo_name, issue_id_url])
+        
         pass
     elif(recepient_type == "testall"):
         #Create issues in all test repos - image_stream and templates
@@ -174,4 +184,5 @@ Execution Steps:
 2. Parse PR body. Check with necessary conditions.
 3. Once parsed, call the appropriate functions and execute the steps.
 '''
-  
+file_content = get_file_content_from_pr(pr_url=pr_url)
+print("File Content : ", file_content)
