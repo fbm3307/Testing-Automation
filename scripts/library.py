@@ -144,14 +144,14 @@ def parse_yml_file(fileContent=None):
     description = ""
     comments = ""
     recepient_type = ""
-    if("title" in recepient_type):
+    if("title" in filedata):
         title = filedata["title"]
-    if("decription" in filedata):
+    if("description" in filedata):
         description = filedata["description"]
     if("comments" in filedata):
         comments = filedata["comments"]
     if("recepient_type" in filedata):
-        recepient_type = filedata("recepient_type")
+        recepient_type = filedata["recepient_type"]
     if("issue_id_list" in filedata):
         issue_id_list = filedata("issue_id_list")
     print("title:", title,"description:", description, "comments:", comments, "rec_type", recepient_type)
